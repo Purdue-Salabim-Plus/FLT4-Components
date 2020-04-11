@@ -7,8 +7,7 @@ def create_routing(env, first_step='move21'):
 
     tasks = {
         'move21': {
-            'location': env['multiplexer_kanban'],
-            # is this the right location to have the move take place from?
+            'location': env['forklift'], #previously multiplexer_kanban
             'worker': env['production_control'],
             'manned': True,
             'setup_time': 0,
@@ -17,6 +16,7 @@ def create_routing(env, first_step='move21'):
             'transit_time': 0,
             'route_to': 'op21'
         },
+        
         'op21': {
             'location': env['assembly_bench'],
             # make sure that this assembly bench is the same place that the next move picks up from!!
@@ -24,6 +24,7 @@ def create_routing(env, first_step='move21'):
             'manned': True,
             'setup_time': 0.07,
             'run_time': 1.38,
+            'transit_time': 0,
             'teardown_time': 0.05,
             'route_to': 'move22'
         },
@@ -44,7 +45,9 @@ def create_routing(env, first_step='move21'):
             'manned': True,
             'setup_time': 0.14,
             'run_time': 1.91,
+            'transit_time': 0,
             'teardown_time': 0,
+            #'route_to': env['section_A_storage']
             'route_to': env['section_A_kanban']
         },
 
@@ -57,8 +60,8 @@ def get_bom(env):
     # just placeholders for now
 
     return {
-        'optx': {
-            'location': env['optx_kanban'],
+        'OPTX': {
+            'location': env['OPTX_kanban'],
             'qty': 1
         },
         'multiplexer': {
@@ -70,10 +73,10 @@ def get_bom(env):
 def create_kanban_attrs(env):
 
     return misc_tools.make_kanban_attrs(order_gen=env['gener.section_A'],
-        order_point=0, order_qty=0,
-        init_qty=0, warmup_time=0)
+        order_point=10, order_qty=10,
+        init_qty=20, warmup_time=5)
     # what are the details of this specific kanban?order point, order quantity, etc.
     # because I just made mine up
     
 
-	
+    

@@ -13,11 +13,12 @@ def create_routing(env, first_step='op29'):
             'setup_time': 0.09,
             'run_time': 1.24,
             'teardown_time': 0.1,
+            'transit_time': 0,
             'route_to': 'op30'
         },
 
         'op30': {
-            'location': env['static_CTI'],
+            'location': env['STATIC_CTI'],
             'worker': env['technician'],
             'manned': True,
             'setup_time': 0.77,
@@ -30,7 +31,7 @@ def create_routing(env, first_step='op29'):
         },
 
         'op31': {
-            'location': env['static_CTI_DBG'],
+            'location': env['STATIC_CTI_DBG'],
             'worker': env['technician'],
             'manned': True,
             'setup_time':0,
@@ -38,13 +39,12 @@ def create_routing(env, first_step='op29'):
             'teardown_time': 0,
             'transit_time': 0,
             'route_to': 'op30'
-
         },
 
 # op30a is just a buffer step to split the jobs that need more processing from the ones that don't
 # there is DEFINITELY a better way to do this, I just don't know what it is yet
         'op30a': {
-            'location': env['static_CTI'],
+            'location': env['STATIC_CTI'],
             'worker': env['technician'],
             'manned': False,
             'setup_time': 0,
@@ -57,7 +57,7 @@ def create_routing(env, first_step='op29'):
         },
 
         'move32': {
-            'location': env['static_CTI'],
+            'location': env['forklift'],
             'worker': env['production_control'],
             'manned': True,
             'setup_time': 0,
@@ -65,7 +65,7 @@ def create_routing(env, first_step='op29'):
             'teardown_time': 0,
             'transit_time': 0,
             'route_to': 'op32'
-        }
+        },
 
 
         'op32': {
@@ -75,11 +75,12 @@ def create_routing(env, first_step='op29'):
             'setup_time': 0.5,
             'run_time': 120,
             'teardown_time': 0.5,
+            'transit_time': 0,
             'route_to': 'move33'
         },
 
         'move33': {
-            'location': env['COND_EST'],
+            'location': env['forklift'],
             'worker': env['production_control'],
             'manned': True,
             'setup_time': 0,
@@ -97,7 +98,8 @@ def create_routing(env, first_step='op29'):
             'setup_time': 0.09,
             'run_time': 1.44,
             'teardown_time': 0.07,
-            'route_to': env['section_D_kanban']
+            'transit_time': 0,
+            'route_to': env['section_D_storage']
         }
 
     }
@@ -114,7 +116,7 @@ def get_bom(env):
             'qty': 1
         },
         'cover': {
-            'location': env['cover_storage'],
+            'location': env['cover_kanban'], 
             'qty': 1
         }
     }
@@ -122,8 +124,8 @@ def get_bom(env):
 def create_kanban_attrs(env):
 
     return misc_tools.make_kanban_attrs(order_gen=env['gener.section_D'],
-        order_point=0, order_qty=0,
-        init_qty=0, warmup_time=0)
+        order_point=5, order_qty=60,
+        init_qty=10, warmup_time=0)
     # what are the details of this specific kanban?order point, order quantity, etc.
     # because I just made mine up
     

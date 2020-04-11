@@ -60,7 +60,7 @@ def make_steps(first_step, tasks):
         
     return steps
 
-def make_assembly_step(env, run_time, route_to, manned=True, transit_time=1):
+def make_assembly_step(env, run_time, route_to, manned=True, transit_time=0):
     """
     """
 
@@ -109,7 +109,7 @@ def make_kanban_attrs(order_gen, order_point, order_qty, init_qty,
     # """
     # """
 
-def make_quality_step(env, run_time, route_to, transit_time=1, **kwargs):
+def make_quality_step(env, run_time, route_to, transit_time=0, **kwargs):
     """
     """
 
