@@ -1,5 +1,6 @@
 import misc_tools
 import random
+from pseudo_DB import dbCall
 
 # this is taking section_C and the cover and merging into one set of parts
 
@@ -11,7 +12,7 @@ def create_routing(env, first_step='op29'):
             'worker': env['assembler'],
             'manned': True,
             'setup_time': 0.09,
-            'run_time': 1.24,
+            'run_time': dbCall("Top_cover_install"),
             'teardown_time': 0.1,
             'route_to': 'op30'
         },
@@ -21,7 +22,7 @@ def create_routing(env, first_step='op29'):
             'worker': env['technician'],
             'manned': True,
             'setup_time': 0.77,
-            'run_time': 5,
+            'run_time': dbCall("Confidence_test_final"),
             'teardown_time': 0.77,
             'transit_time': 0,
             'yield': 94.23,
@@ -72,7 +73,7 @@ def create_routing(env, first_step='op29'):
             'worker': env['technician'],
             'manned': True,
             'setup_time': 0.5,
-            'run_time': 120,
+            'run_time': dbCall("Thermal_test"),
             'teardown_time': 0.5,
             'route_to': 'move33'
         },
@@ -94,7 +95,7 @@ def create_routing(env, first_step='op29'):
             'worker': env['assembler'],
             'manned': True,
             'setup_time': 0.09,
-            'run_time': 1.44,
+            'run_time': dbCall("Top_cover_seal"),
             'teardown_time': 0.07,
             'route_to': env['section_D_kanban']
         }

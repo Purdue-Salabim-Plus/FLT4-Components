@@ -1,6 +1,6 @@
 import misc_tools
 import random
-
+from pseudo_DB import dbCall
 
 def create_routing(env, first_step='move15'):
     tasks = {
@@ -22,7 +22,7 @@ def create_routing(env, first_step='move15'):
             'worker': env['assembler'],
             'manned': True,
             'setup_time': 1,
-            'run_time': 5,
+            'run_time': dbCall("Splitter_assy"),
             'teardown_time': 1,
             'transit_time': 1,
             'route_to': 'move16'
@@ -42,7 +42,7 @@ def create_routing(env, first_step='move15'):
 
         'op16': misc_tools.make_quality_step(
             env=env,
-            run_time=2,
+            run_time=dbCall("Splitter_insp"),
             route_to='move17',
             transit_time=1
         ),
@@ -64,7 +64,7 @@ def create_routing(env, first_step='move15'):
             'worker': env['technician'],
             'manned': True,
             'setup_time': 10,
-            'run_time': 2,
+            'run_time': dbCall("Splitter_func_test"),
             'teardown_time': 10,
             'transit_time': 1,
             'yield': 94.23,

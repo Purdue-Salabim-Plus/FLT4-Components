@@ -1,5 +1,6 @@
 import misc_tools
 import random
+from pseudo_DB import dbCall
 
 # this is taking section_C and the cover and merging into one set of parts
 
@@ -24,7 +25,7 @@ def create_routing(env, first_step='move34'):
             'worker': env['assembler'],
             'manned': True,
             'setup_time': 0.05,
-            'run_time': 0.55,
+            'run_time': dbCall("Antenna_install"),
             'teardown_time': 0.05,
             'route_to': 'op35'
         },
@@ -34,7 +35,7 @@ def create_routing(env, first_step='move34'):
             'worker': env['technician'],
             'manned': True,
             'setup_time': 0.26,
-            'run_time': 1.3,
+            'run_time': dbCall("RF_fit_test"),
             'teardown_time': 0.16,
             'transit_time': 0,
             'yield': 94.23,
@@ -72,14 +73,14 @@ def create_routing(env, first_step='move34'):
             'worker': env['technician'],
             'manned': True,
             'setup_time': 2,
-            'run_time': 5,
+            'run_time': dbCall("RF_test"),
             'teardown_time': 2,
             'route_to': 'op37'
         },
 
         'op37': misc_tools.make_quality_step(
             env=env,
-            run_time=5,
+            run_time=dbCall("Inspection_final"),
             route_to=env['FLT4_storage'],
             transit_time=0
             )

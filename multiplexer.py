@@ -1,5 +1,6 @@
 import misc_tools
 import random
+from pseudo_DB import dbCall
 
 def create_routing(env, first_step='move1'):
 
@@ -17,13 +18,13 @@ def create_routing(env, first_step='move1'):
         
         'op1': misc_tools.make_assembly_step(
             env=env,
-            run_time = 3.79,
+            run_time = dbCall("Multiplexer_assy"),
             route_to='op2'
             ),
 
         'op2': misc_tools.make_quality_step(
             env=env,
-            run_time=0.2,
+            run_time=dbCall("Multiplexer_insp"),
             route_to='op3',
             transit_time=0
             ),
@@ -33,7 +34,7 @@ def create_routing(env, first_step='move1'):
             'worker': env['technician'],
             'manned': True,
             'setup_time': 0.09,
-            'run_time': 1.24,
+            'run_time': dbCall("Multiplexer_func_test"),
             'teardown_time': 0.07,
             'transit_time': 0,
             'yield': 0.99,

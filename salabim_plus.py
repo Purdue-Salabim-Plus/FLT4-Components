@@ -18,30 +18,41 @@ class ComputationalError(Error):
     def __init__(self):
         print(f'It appears nothing happened on a function')
 
-        
-class EnvironmentPlus(sim.Environment):
+
+class Environment(sim.Environment):
     """
     Extend `sim.Environment`
     """
 
-    def __init__(self, *args, **kwargs):
+    def setup(self, suppress_trace_linenumbers=True):
         """
-        extend `sim.Component.__init__()`, 
-        setup EnvironmentPlus specific attributes
+        sim.Environment setup method for custom functionality
+        Args:
+            suppress_trace_linenumbers (bool): option to print or not print 
+                                               the reference code line number 
+                                               within the trace output, 
+                                               defaulted to True
         """
-        sim.Environment.__init__(self, *args, **kwargs)
-        self.objs = {}
+
+        self._env_objs = {}
+        self._suppress_trace_linenumbers = suppress_trace_linenumbers
+
+    def _add_env_objectlist(self, obj):
+        """
+        add to the objectlist noting objects inside of the simulation
+        Args:
+            obj (sim.Component): salabim_plus top level object 
+        """
+
+        self._env_objs[obj._name] = obj
 
 class EntityGenerator(sim.Component):
     """
     Extend `sim.Component` 
     Controls when entities of var_name enter the sim.env system   
-    Does anything to make sure that entities are entering the system: when they need to be initially created
-    and when orders are re-fulfilled
     """
     
     # 'continuous','periodic','ordered','inv_based'
-    # any __init__ things are done automatically when an instance of the class is created
     def __init__(self, var_name, steps_func, env, 
                  arrival_type=None, start_at=0, 
                  bom=None, main_exit=None, cut_queue=False, interval=None, 
@@ -95,7 +106,7 @@ class EntityGenerator(sim.Component):
         self.arrival_type = arrival_type
         self.start_at = start_at
         self.env = env
-        env.objs[self._name] = self
+        env._add_env_objectlist(self)
         
         # decision tree to initialize arrival_type specific attributes
         if arrival_type == 'continuous':
@@ -104,8 +115,6 @@ class EntityGenerator(sim.Component):
             self.interval = interval
         elif arrival_type == 'ordered':  
             # sim.State used to know if any entities have been ordered
-            # sim.State is defined in the salabim package; its default value is set to FALSE until it is interacted with and becomes true
-            # the value of a state is automatically monitored in the state.value level monitor
             self.ordered_qty = (
                 sim.State(self.var_name+'_ordered_qty', value=0)
             )
@@ -162,15 +171,12 @@ class EntityGenerator(sim.Component):
         """
         make entities as they are ordered by other sim.Components
         """
-        # self.wait is how you get a component to wait until it has a certain quantity assigned to it
-        # once the state of the variable is TRUE it will continue
         
         while True:
-            yield self.wait((self.ordered_qty, '$ > 0'))
-            # this quantity is honored as soon as ordered_qty is > 0 .... the $ is replaced at run time by state.value()
+            yield self.wait((self.ordered_qty, lambda v, c, s: v > 0))
+
             if self.bom:
                 yield from self.check_bom_inv()
-                # makes sure enough material is available
             yield from self.fulfill_order()      
             
     def inv_based_arrivals(self):
@@ -180,7 +186,7 @@ class EntityGenerator(sim.Component):
         
         while True:
             yield self.wait(
-                (self.tracker.wip_count, '$ <'+str(self.inv_level))
+                (self.tracker.wip_count, lambda v, c, s: v < self.inv_level)
             )
             if self.bom:
                 yield from self.check_bom_inv()
@@ -203,9 +209,6 @@ class EntityGenerator(sim.Component):
         """
         
         for _ in range(self.inv_level - self.tracker.wip_count()):
-        # this is counting how many of an item we have in inventory because it isn't taken out of inventory
-        # until it reaches the 'storage' stage and is out of that level of creation completely; calculates
-        # the up-to-date 'true' inventory level
             if self.bom:
                 # print(True)
                 yield from self.check_bom_inv()
@@ -219,7 +222,7 @@ class EntityGenerator(sim.Component):
         self.make_count += 1
         # pprint.pprint(globals())
         self.entity(var_name=self.var_name+'_'+str(self.make_count), env=self.env,
-                    steps=self.steps_func(env=self.env.objs), tracker=self.tracker, 
+                    steps=self.steps_func(env=self.env._env_objs), tracker=self.tracker, 
                     bom=self.bom, main_exit=self.main_exit, cut_queue=self.cut_queue)
 
     def populate_inv(self, location):
@@ -248,7 +251,7 @@ class EntityGenerator(sim.Component):
         """
         
         bom_requirements = [
-            (details['location'].count, '$ < '+str(details['qty'])) # <---BUG?? conditional is flipped to correctly honor
+            (details['location'].count, lambda v, c, s: v >= details['qty'])
             for part, details in self.bom.items()
         ]
 #         print(bom_requirements)
@@ -274,14 +277,13 @@ class EntityTracker(sim.Component):
         """
         
         sim.Component.__init__(self, name='track.'+var_name, *args, **kwargs)
-        # this is the same line of code that is in the EntityGenerator class
         
-        self.wip = sim.Queue(self._name+'_wip') # this is defining queues of all these names. they will all be prepended with 'tracker.' because self includes the tracker portion because this function is called by the EntityGenerator
+        self.wip = sim.Queue(self._name+'_wip')
         self.complete = sim.Queue(self._name+'_complete')
         self.wip_count = sim.State(self._name+'_wip_count', value=0)
         self.complete_count = sim.State(self._name+'_complete_count', value=0)
         self.env = env
-        env.objs[self._name] = self
+        env._add_env_objectlist(self)
         
     def update(self):
         """
@@ -338,7 +340,7 @@ class Entity(sim.Component):
         self.tracker = tracker
         self.as_built = [] # entity contents that were used to built entity
         self.env = env
-        env.objs[self._name] = self
+        env._add_env_objectlist(self)
         
         if self.bom:
             self.get_materials()
@@ -354,7 +356,7 @@ class Entity(sim.Component):
 #         if self.bom:
 #             yield from self.get_materials()
         if not self.prepop:    
-            yield from self.process_part() # does all the things to process the part, meaning it finds what step it is on, what machine it needs to be processed by, sends it to that machine, sits in the queue, waits to be processed, and then completes the step and simulates transit time
+            yield from self.process_part()
         
         if not isinstance(self.steps[-1]['route_to'], str):
             self.push(to_inv=self.steps[-1]['route_to'])
@@ -407,7 +409,7 @@ class Entity(sim.Component):
                 self.enter(step['location'].queue)
             
             self.state.set('waiting') # <<-- insert a get_wait_type statement based on machine state
-            step['location'].in_queue.trigger(max=1) # allows 1 product to enter processing by the machine at a time - this triggers a def in class Machine to start working on it
+            step['location'].in_queue.trigger(max=1)
             yield self.wait(self.step_complete)
             yield self.hold(step['transit_time'])
             
@@ -448,7 +450,7 @@ class Entity(sim.Component):
         self.enter(self.tracker.complete)
         self.tracker.update()
          
-# Does it make sense to make worker a sim.Component for WorkerGroups???, but what about benefits of sim.Resource 
+# Does it make send to make worker a sim.Component for WorkerGroups???, but what about benefits of sim.Resource 
 # class Worker(sim.Component):
 #     """
 #     Extend `sim.Component`
@@ -485,11 +487,11 @@ class Machine(sim.Component):
         
         self.var_name = self._name.replace('.','_') # unique name of that specific machine 
         self.queue = sim.Queue(self.var_name+'_queue') # queue of entities to work on
-        self.in_queue = sim.State(self.var_name+'_in_queue') # trigger state to work on an entity, NOTE that the default state is FALSE
+        self.in_queue = sim.State(self.var_name+'_in_queue') # trigger state to work on an entity
         self.state = sim.State(self.var_name+'_status', value='idle') # machine status
         self.time_remaining = 0 # time until machine finishes entity being process
         self.env = env
-        env.objs[self._name] = self
+        env._add_env_objectlist(self)
         
     def process(self):
         """
@@ -703,7 +705,7 @@ class MachineGroup(sim.Component):
         self.var_name = var_name
         self.machines = machines
         self.env = env
-        env.objs[self._name] = self
+        env._add_env_objectlist(self)
         
     def find_first_available(self):
         """
@@ -713,7 +715,6 @@ class MachineGroup(sim.Component):
         """
         
         # conditional to determine if routing based on queue length should be used (no more than 1 machine has an empty queue) 
-        # lines 714 - 717 must be saying, for these machines in self.machines, if len(machine.queue) == 0, then add len(machine.queue) to the list, and iterate through all machines. If there is 1 or fewer items in this list, then the conditional is satisfied.
         if (2 > len(
             [len(machine.queue) for machine in self.machines 
              if len(machine.queue) == 0]
@@ -784,7 +785,7 @@ class ShiftController(sim.Component):
         self.worker_cap = worker.capacity() # number of workers in worker sim.Resource
         self.shift_num = 0 # placeholder indicating how many shifts have passed
         self.env = env
-        env.objs[self._name] = self
+        env._add_env_objectlist(self)
         
         # decision tree to verify valid shift_type method
         options = ['continuous','pattern','ordered']
@@ -843,7 +844,7 @@ class ShiftController(sim.Component):
         
         # stop all machines serviced by the worker at end of shift
         tmp = {}
-        for machine in self.worker.claimers(): # claimers is a list of all components trying to claim from the resource
+        for machine in self.worker.claimers():
             machine.interrupt()
             tmp[machine] = copy.deepcopy(machine.state()) # save machine state for start up
             machine.state.set('idle') # update machine state
@@ -906,7 +907,7 @@ class Worker(sim.Resource):
         self.state = sim.State(self._name+'_status', value='off_clock') # worker status
         self.num_working = sim.State(self._name+'_num_working', value=0) # state indicating how many workers are working
         self.env = env
-        env.objs[self._name] = self
+        env._add_env_objectlist(self)
         
     def update_num_working(self, value=None):
         """
@@ -955,7 +956,7 @@ class Kanban(sim.Component):
         self.on_order = sim.State(self._name+'_on_order', value=0) # state indicating how many entities are on order
         self.total_inv = sim.State(self._name+'_total_inv', value=0) # sum of entities on order and entities in kanban queue
         self.env = env
-        env.objs[self._name] = self
+        env._add_env_objectlist(self)
         
     def process(self):
         """
@@ -979,7 +980,7 @@ class Kanban(sim.Component):
             self.update_inv()
 
         while True:
-            yield self.wait((self.total_inv, '$ <'+str(self.order_point))) # wait until the inventory level falls below the indicated threshold
+            yield self.wait((self.total_inv, lambda v, c, s: v < self.order_point)) # wait until the inventory level falls below the indicated threshold
             self.order_gen.send_order(self.order_qty)
             self.entity_ordered(self.order_qty)
 
@@ -988,13 +989,12 @@ class Kanban(sim.Component):
         """
 
         for _ in range(self.init_qty):
-            self.order_gen.populate_inv(location=self.env.objs[self._name])
+            self.order_gen.populate_inv(location=self.env._env_objs[self._name])
     
     def entity_ordered(self, qty):
         """
         updates the kaban metrics when an entity is ordered to the kanban 
         queue
-
         Args:
             qty (int): quantity of entities that have been ordered
         """
@@ -1047,7 +1047,7 @@ class Storage(sim.Component):
         self.queue = sim.Queue(self._name+'_queue') # storage queue
         self.count = sim.State(self._name+'_count', value=0) # quantity inside storage queue
         self.env = env
-        env.objs[self._name] = self
+        env._add_env_objectlist(self)
         
     def process(self):
         """

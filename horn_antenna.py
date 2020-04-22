@@ -1,5 +1,6 @@
 import misc_tools
 import random
+from pseudo_DB import dbCall
 
 def create_routing(env, first_step='move18'):
 
@@ -23,7 +24,7 @@ def create_routing(env, first_step='move18'):
 			'worker': env['assembler'],
 			'manned': True,
 			'setup_time': 0.66,
-			'run_time': 3.61,
+			'run_time': dbCall("Antenna_assy"),
 			'teardown_time': 0.61,
 			'transit_time': 0,
 			'route_to': 'op19'
@@ -31,7 +32,7 @@ def create_routing(env, first_step='move18'):
 
 		'op19':  misc_tools.make_quality_step(
 			env=env,
-			run_time=0.2,
+			run_time=dbCall("Antenna_insp"),
 			route_to='op20',
 			transit_time=0,
 			),
@@ -41,7 +42,7 @@ def create_routing(env, first_step='move18'):
 			'worker': env['technician'],
 			'manned': True,
 			'setup_time': 0.5,
-			'run_time': 0.5,
+			'run_time': dbCall("Antenna_PAT"),
 			'teardown_time': 0.5,
 			'transit_time': 0,
 			'yield': 0.9423,

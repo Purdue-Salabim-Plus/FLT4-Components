@@ -1,5 +1,6 @@
 import misc_tools
 import random
+from pseudo_DB import dbCall
 
 def create_routing(env, first_step='move10'):
 
@@ -24,7 +25,7 @@ def create_routing(env, first_step='move10'):
 			'worker': env['assembler'],
 			'manned': True,
 			'setup_time': 5,
-			'run_time': 10,
+			'run_time': dbCall("BFPD_assy"),
 			'teardown_time': 5,
 			'transit_time': 0,
 			'route_to': 'move11'
@@ -48,7 +49,7 @@ def create_routing(env, first_step='move10'):
 			'worker': env['assembler'],
 			'manned': False,
 			'setup_time': 1,
-			'run_time': 5,
+			'run_time': 5, # assuming always 5 because automated inspection
 			'teardown_time': 1,
 			'transit_time': 0,
 			'route_to': 'move13'
@@ -71,7 +72,7 @@ def create_routing(env, first_step='move10'):
 			'worker': env['technician'],
 			'manned': True,
 			'setup_time': .5,
-			'run_time': 4,
+			'run_time': dbCall("BFPD_func_test"),
 			'teardown_time': .5,
 			'transit_time': 0,
 			'yield': .9423,
@@ -94,11 +95,12 @@ def create_routing(env, first_step='move10'):
 		# check back to excel doc: this doesn't exactly agree with the number provided.
 		# do we need to add another rework within operation 14??
 		# also, op14 is not in the diagram, what are the implications of that?
+        # I think there needs to be a step for if this needs to go to debug (60-200 mins)
 			'location': env['BFPD_CTI_DBG'],
 			'worker': env['technician'],
 			'manned': True,
 			'setup_time': 0.5,
-			'run_time': random.uniform(a=60,b=200),
+			'run_time': dbCall("BFPD_debug"), #random.uniform(a=60,b=200),
 			'teardown_time': 0.5,
 			'transit_time': 0,
 			'route_to': env['BFPD_kanban']

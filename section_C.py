@@ -1,5 +1,6 @@
 import misc_tools
 import random
+from pseudo_DB import dbCall
 
 # this is taking section_B and the antenna kit and merging into one set of parts
 
@@ -13,7 +14,7 @@ def create_routing(env, first_step='op26'):
             'worker': env['assembler'],
             'manned': True,
             'setup_time': 0.3,
-            'run_time': 2.81,
+            'run_time': dbCall("GPS_cover_install"),
             'transit_time': 0,
             'teardown_time': 0.16,
             'route_to': 'op27'
@@ -23,7 +24,7 @@ def create_routing(env, first_step='op26'):
             'worker': env['assembler'],
             'manned': True,
             'setup_time': 0.14,
-            'run_time': 1.91,
+            'run_time': dbCall("GPS_filler_install"),
             'transit_time': 0,
             'teardown_time': 0,
             'route_to': 'op28'
@@ -33,7 +34,7 @@ def create_routing(env, first_step='op26'):
             'worker': env['qual_inspector'],
             'manned': True,
             'setup_time': 0,
-            'run_time': 75,
+            'run_time': dbCall("Inspection"),
             'teardown_time': 0,
             'transit_time': 0,
             'route_to': env['section_C_storage']

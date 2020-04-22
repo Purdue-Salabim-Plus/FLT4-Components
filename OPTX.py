@@ -1,5 +1,6 @@
 import misc_tools
 import random
+from pseudo_DB import dbCall
 
 def create_routing(env, first_step='move5'):
 
@@ -21,7 +22,7 @@ def create_routing(env, first_step='move5'):
 
         'op5': misc_tools.make_quality_step(
             env=env,
-            run_time=1,
+            run_time=dbCall("SIP_insp"),
             route_to='op7',
             transit_time=0
             ),
@@ -31,7 +32,7 @@ def create_routing(env, first_step='move5'):
             'worker': env['assembler'],
             'manned': True,
             'setup_time': 0,
-            'run_time': 7.6455,
+            'run_time': dbCall("OPTX_assy"),
             'teardown_time': 0,
             'transit_time': 0,
             'route_to': 'op8'
@@ -44,7 +45,7 @@ def create_routing(env, first_step='move5'):
             # this step is an unmanned step --> update appropriately!!
             'manned': False,
             'setup_time': 0,
-            'run_time': 1,
+            'run_time': 1, # assuming always 1 because this is automated inspection
             'teardown_time': 0,
             'transit_time': 0,
             'route_to': 'op9'
@@ -55,7 +56,7 @@ def create_routing(env, first_step='move5'):
             'worker': env['technician'],
             'manned': True,
             'setup_time': 5,
-            'run_time': 5,
+            'run_time': dbCall("OPTX_CTI"),
             'teardown_time': 1,
             'transit_time': 0,
             'route_to': env['OPTX_kanban']

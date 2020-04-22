@@ -1,5 +1,6 @@
 import misc_tools
 import random
+from pseudo_DB import dbCall
 
 # this is taking section_A and the bfpd and the splitter and merging them into one group of items
 
@@ -21,7 +22,7 @@ def create_routing(env, first_step='move23'):
             'worker': env['assembler'],
             'manned': True,
             'setup_time': 0.04,
-            'run_time': 0.64,
+            'run_time': dbCall("BFPD_subassy"),
             'transit_time': 0,
             'teardown_time': 0.03,
             'route_to': 'op24'
@@ -31,7 +32,7 @@ def create_routing(env, first_step='move23'):
             'worker': env['assembler'],
             'manned': True,
             'setup_time': 0.16,
-            'run_time': 1.65,
+            'run_time': dbCall("Vent_bayonnet_install"),
             'teardown_time': 0.12,
             'transit_time': 0,
             'route_to': 'op25'
@@ -41,7 +42,7 @@ def create_routing(env, first_step='move23'):
             'worker': env['assembler'],
             'manned': True,
             'setup_time': 0.04,
-            'run_time': 0.58,
+            'run_time': dbCall("OPTX_solder"),
             'transit_time': 0,
             'teardown_time': 0.03,
             'route_to': env['section_B_kanban']

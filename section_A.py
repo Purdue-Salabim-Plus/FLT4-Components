@@ -1,5 +1,6 @@
 import misc_tools
 import random
+from pseudo_DB import dbCall
 
 # this is taking multiplexer and OPTX and merging them into one group of items
 
@@ -23,7 +24,7 @@ def create_routing(env, first_step='move21'):
             'worker': env['assembler'],
             'manned': True,
             'setup_time': 0.07,
-            'run_time': 1.38,
+            'run_time': dbCall("OPTX_multiplex_install"),
             'transit_time': 0,
             'teardown_time': 0.05,
             'route_to': 'move22'
@@ -44,7 +45,7 @@ def create_routing(env, first_step='move21'):
             'worker': env['assembler'],
             'manned': True,
             'setup_time': 0.14,
-            'run_time': 1.91,
+            'run_time': dbCall("BFPD_thermal_install"),
             'transit_time': 0,
             'teardown_time': 0,
             #'route_to': env['section_A_storage']
