@@ -70,4 +70,5 @@ def create_kanban_attrs(env):
         order_point=10, order_qty=10,
         init_qty=INIT_QT, warmup_time=5)
     #Originally init_qty = 20
+
     

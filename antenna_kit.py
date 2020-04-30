@@ -3,8 +3,6 @@ import random
 
 INIT_QT = 1000
 
-
-
 def create_routing(env, first_step='move1'):
 
     tasks={
@@ -32,4 +30,5 @@ def create_kanban_attrs(env):
     # because I just made mine up
 
 #init qty: 50
+
 	

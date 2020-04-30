@@ -84,7 +84,3 @@ def create_kanban_attrs(env):
     # what are the details of this specific kanban?order point, order quantity, etc.
     # because I just made mine up
     
-    
-    
-
-    

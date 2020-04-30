@@ -69,7 +69,6 @@ def create_routing(env, first_step='op29'):
             'route_to': 'op32'
         },
 
-
         'op32': {
             'location': env['COND_EST'],
             'worker': env['technician'],

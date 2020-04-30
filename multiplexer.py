@@ -66,6 +66,7 @@ def create_kanban_attrs(env):
         init_qty=INIT_QT, warmup_time=0)
 
     # Originally: 50
+
     # what are the details of this specific kanban?order point, order quantity, etc.
     # because I just made mine up
     
