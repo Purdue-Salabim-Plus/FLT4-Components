@@ -1,7 +1,12 @@
 import misc_tools
 import random
 
+
+INIT_QT = 100
+
+
 def create_routing(env, first_step='op26'):
+    
 
     tasks = {
 
@@ -63,6 +68,6 @@ def create_kanban_attrs(env):
 
     return misc_tools.make_kanban_attrs(order_gen=env['gener.section_C'],
         order_point=10, order_qty=10,
-        init_qty=20, warmup_time=5)
-    # what are the details of this s
+        init_qty=INIT_QT, warmup_time=5)
+    #Originally init_qty = 20
     

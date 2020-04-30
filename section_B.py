@@ -3,6 +3,9 @@ import random
 
 # this is taking section_A and the bfpd and the splitter and merging them into one group of items
 
+
+INIT_QT = 100
+
 def create_routing(env, first_step='move23'):
 
     tasks = {
@@ -77,9 +80,11 @@ def create_kanban_attrs(env):
 
     return misc_tools.make_kanban_attrs(order_gen=env['gener.section_B'],
         order_point=10, order_qty=10,
-        init_qty=20, warmup_time=5)
+        init_qty=INIT_QT, warmup_time=5)
+
     # what are the details of this specific kanban?order point, order quantity, etc.
     # because I just made mine up
+    #INIT_QT
     
 
 	

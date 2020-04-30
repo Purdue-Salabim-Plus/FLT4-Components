@@ -3,6 +3,8 @@ import random
 
 # this is taking section_C and the cover and merging into one set of parts
 
+INIT_QT = 100
+
 def create_routing(env, first_step='op29'):
 
     tasks = {
@@ -99,7 +101,7 @@ def create_routing(env, first_step='op29'):
             'run_time': 1.44,
             'teardown_time': 0.07,
             'transit_time': 0,
-            'route_to': env['section_D_storage']
+            'route_to': env['section_D_kanban']
         }
 
     }
@@ -111,11 +113,11 @@ def get_bom(env):
     # just placeholders for now
 
     return {
-        'section_C': {
+        'section_C' : {
             'location': env['section_C_kanban'],
             'qty': 1
         },
-        'cover': {
+        'cover' : {
             'location': env['cover_kanban'], 
             'qty': 1
         }
@@ -125,7 +127,8 @@ def create_kanban_attrs(env):
 
     return misc_tools.make_kanban_attrs(order_gen=env['gener.section_D'],
         order_point=5, order_qty=60,
-        init_qty=10, warmup_time=0)
+        init_qty=INIT_QT, warmup_time=0)
+
     # what are the details of this specific kanban?order point, order quantity, etc.
     # because I just made mine up
     

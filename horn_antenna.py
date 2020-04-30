@@ -1,13 +1,16 @@
 import misc_tools
 import random
 
+INIT_QT = 1000
+
+
 def create_routing(env, first_step='move18'):
 
 	tasks={
 		# I added this move step in to create a place for the horn antenna to arrive
 		# but do we need to take out to stay true to the Excel doc?
 		'move18': {
-            'location': env['horn_atenna_storage'],
+            'location': env['forklift'],
             # is this the right location to have the move take place from?
             'worker': env['production_control'],
             'manned': True,
@@ -65,6 +68,8 @@ def create_routing(env, first_step='move18'):
 
 def create_kanban_attrs(env):
 
-	return misc_tools.make_kanban_attrs(order_gen=env['gener.horn_antenna.py'],
+	return misc_tools.make_kanban_attrs(order_gen=env['gener.horn_antenna'],
 		order_point=2, order_qty=5,
-		init_qty=5, warmup_time=0)
+		init_qty=INIT_QT, warmup_time=0)
+
+#ORIG : 5
