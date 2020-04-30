@@ -1,9 +1,12 @@
 import misc_tools
 import random
 
-# this is taking section_B and the antenna kit and merging into one set of parts
+
+INIT_QT = 100
+
 
 def create_routing(env, first_step='op26'):
+    
 
     tasks = {
 
@@ -28,25 +31,18 @@ def create_routing(env, first_step='op26'):
             'teardown_time': 0,
             'route_to': 'op28'
         },
-        'op28':{
+
+        'op28': {
             'location': env['quality_bench'],
             'worker': env['qual_inspector'],
             'manned': True,
             'setup_time': 0,
             'run_time': 75,
-            'teardown_time': 0,
             'transit_time': 0,
-            'route_to': env['section_C_storage']
+            'teardown_time': 0,
+            'route_to': env['section_C_kanban']
+            #'route_to': env['section_C_storage']
         }
-
-        
-
-        # 'op28': misc_tools.make_quality_step(
-        #     env=env,
-        #     run_time=75,
-        #     route_to=env['section_C_storage'],
-        #     transit_time=0
-        #     )
 
     }
 
@@ -71,10 +67,8 @@ def get_bom(env):
 def create_kanban_attrs(env):
 
     return misc_tools.make_kanban_attrs(order_gen=env['gener.section_C'],
-        order_point=30, order_qty=40,
-        init_qty=8, warmup_time=6)
-    # what are the details of this specific kanban?order point, order quantity, etc.
-    # because I just made mine up
-    
+        order_point=10, order_qty=10,
+        init_qty=INIT_QT, warmup_time=5)
+    #Originally init_qty = 20
 
     

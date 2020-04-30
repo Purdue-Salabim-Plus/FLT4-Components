@@ -7,7 +7,7 @@ def create_routing(env, first_step='move34'):
 
     tasks = {
         'move34': {
-            'location': env['section_D_kanban'],
+            'location': env['forklift'],
             # is this the right location to have the move take place from?
             'worker': env['production_control'],
             'manned': True,
@@ -26,6 +26,7 @@ def create_routing(env, first_step='move34'):
             'setup_time': 0.05,
             'run_time': 0.55,
             'teardown_time': 0.05,
+            'transit_time': 0,
             'route_to': 'op35'
         },
 
@@ -74,6 +75,7 @@ def create_routing(env, first_step='move34'):
             'setup_time': 2,
             'run_time': 5,
             'teardown_time': 2,
+            'transit_time': 0,
             'route_to': 'op37'
         },
 
